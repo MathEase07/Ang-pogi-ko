@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ang pogi ko</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7fa;
+      margin: 20px;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+    input[type="number"] {
+      width: 70px;
+      padding: 5px;
+      text-align: center;
+    }
+    select, button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+    }
+    button {
+      background: #007bff;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .summary {
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Ang pogi ko shesh</h1>
+
+    <h2>Send IG</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price (₱)</th>
+          <th>Stock</th>
+          <th>Set Stock</th>
+        </tr>
+      </thead>
+      <tbody id="stockTable"></tbody>
+    </table>
+
+    <h2>Add Order</h2>
+    <div style="text-align:center; margin-bottom:20px;">
+      <select id="productSelect"></select>
+      <input type="number" id="orderQty" placeholder="Quantity" min="1">
+      <button onclick="addOrder()">Add Order</button>
+    </div>
+
+    <h2>Orders</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price (₱)</th>
+          <th>Quantity</th>
+          <th>Total (₱)</th>
+        </tr>
+      </thead>
+      <tbody id="ordersTable"></tbody>
+    </table>
+
+    <p class="summary">Total Earnings: ₱<span id="totalEarnings">0</span></p>
+  </div>
+
+  <script>
+    const products = [
+      { name: "Buko-Loko", price: 15, stock: 0 },
+      { name: "Spinach-saya", price: 20, stock: 0 },
+      { name: "Mang-ghost", price: 15, stock: 0 },
+      { name: "Saging-sayo", price: 15, stock: 0 },
+      { name: "Ikaw Pa-still", price: 20, stock: 0 },
+      { name: "Pina-saya", price: 15, stock: 0 },
+      { name: "Assorted Pack", price: 89, stock: 0 }
+    ];
+
+    let totalEarnings = 0;
+
+    const stockTable = document.getElementById("stockTable");
+    const productSelect = document.getElementById("productSelect");
+    const ordersTable = document.getElementById("ordersTable");
+    const totalEarningsEl = document.getElementById("totalEarnings");
+
+    // Render stock table
+    function renderStockTable() {
+      stockTable.innerHTML = "";
+      productSelect.innerHTML = "";
+
+      products.forEach((product, index) => {
+        stockTable.innerHTML += `
+          <tr>
+            <td>${product.name}</td>
+            <td>₱${product.price}</td>
+            <td id="stock-${index}">${product.stock}</td>
+            <td>
+              <input type="number" min="0" id="input-${index}" value="${product.stock}">
+              <button onclick="setStock(${index})">Set</button>
+            </td>
+          </tr>
+        `;
+
+        productSelect.innerHTML += `<option value="${index}">${product.name} - ₱${product.price}</option>`;
+      });
+    }
+
+    function setStock(index) {
+      const input = document.getElementById(`input-${index}`);
+      const newStock = parseInt(input.value) || 0;
+      products[index].stock = newStock;
+      document.getElementById(`stock-${index}`).innerText = newStock;
+    }
+
+    function addOrder() {
+      const index = parseInt(productSelect.value);
+      const qty = parseInt(document.getElementById("orderQty").value);
+
+      if (isNaN(qty) || qty <= 0) {
+        alert("Enter a valid quantity!");
+        return;
+      }
+
+      if (products[index].stock < qty) {
+        alert("Not enough stock!");
+        return;
+      }
+
+      // Deduct stock
+      products[index].stock -= qty;
+      document.getElementById(`stock-${index}`).innerText = products[index].stock;
+
+      const total = qty * products[index].price;
+      totalEarnings += total;
+
+      ordersTable.innerHTML += `
+        <tr>
+          <td>${products[index].name}</td>
+          <td>₱${products[index].price}</td>
+          <td>${qty}</td>
+          <td>₱${total}</td>
+        </tr>
+      `;
+
+      totalEarningsEl.innerText = totalEarnings;
+    }
+
+    renderStockTable();
+  </script>
+</body>
+</html>
